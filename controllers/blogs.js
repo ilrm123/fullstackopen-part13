@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const { SECRET } = require('../util/config')
 const { Op } = require('sequelize')
 
-const { Blog, User } = require('../models')
+const { Blog, User, Session } = require('../models')
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message)
@@ -12,6 +12,10 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).send({ error: "Null values present for non-nullable fields" })
   } else if (error.message === "Validation error: Validation isEmail on username failed") {
     return res.status(400).send({ error: "Username must be a valid email" })
+  } else if (error.message === "Validation error: Validation max on year failed") {
+    return res.status(400).send({ error: "Year must be between 1991 and current year" })
+  } else if (error.message === "Validation error: Validation min on year failed") {
+    return res.status(400).send({ error: "Year must be between 1991 and current year" })
   } else {
     return res.status(400).send({ error: error.message })
   }
@@ -62,6 +66,16 @@ blogsRouter.get('/api/blogs', async (req, res) => {
 blogsRouter.post('/api/blogs', tokenExtractor, async (req, res, next) => {
   try {
     const user = await User.findByPk(req.decodedToken.id)
+    const session = await Session.findOne({
+      where: {
+        user_id: user.id
+      }
+    })
+
+    if (!session) {
+      throw new Error('Invalid session')
+    }
+
     const blog = await Blog.create({...req.body, userId: user.id, date: new Date()})
     res.json(blog)
   } catch (error) {
@@ -91,4 +105,4 @@ blogsRouter.put('/api/blogs/:id', async (req, res, next) => {
   }
 })
 
-module.exports = {blogsRouter, errorHandler}
+module.exports = {blogsRouter, errorHandler, tokenExtractor}

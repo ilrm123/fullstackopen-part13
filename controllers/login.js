@@ -3,6 +3,7 @@ const router = require('express').Router()
 
 const { SECRET } = require('../util/config')
 const User = require('../models/user')
+const Session = require('../models/session')
 
 router.post('/api/login', async (request, response) => {
   const body = request.body
@@ -28,9 +29,19 @@ router.post('/api/login', async (request, response) => {
 
   const token = jwt.sign(userForToken, SECRET)
 
+  await Session.create({
+    token: token,
+    user_id: user.id
+  })
+
   response
     .status(200)
     .send({ token, username: user.username, name: user.name })
+})
+
+router.delete('/api/logout/:id', async (request, response) => {
+  await Session.destroy({ where: { user_id:  request.params.id }})
+  response.send(200)
 })
 
 module.exports = router

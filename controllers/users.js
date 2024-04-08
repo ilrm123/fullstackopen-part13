@@ -22,7 +22,48 @@ router.post('/api/users', async (req, res, next) => {
 })
 
 router.get('/api/users/:id', async (req, res) => {
-  const user = await User.findByPk(req.params.id)
+  var bool = null
+  var user = null
+
+  if (req.query.read == 'false') {
+    bool = false
+  } else if (req.query.read == 'true') {
+    bool = true
+  } else {
+    user = await User.findByPk(req.params.id, {
+      include: [
+        {
+          model: Blog,
+          as: 'readings',
+          attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+          through: {
+            as: 'readinglists',
+            attributes: ['read', 'id'],
+          }
+        }
+      ]
+    })
+  }
+
+  if (bool != null) {
+    user = await User.findByPk(req.params.id, {
+      include: [
+        {
+          model: Blog,
+          as: 'readings',
+          attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+          through: {
+            as: 'readinglists',
+            attributes: ['read', 'id'],
+            where: {
+              read: bool
+            }
+          }
+        }
+      ]
+    })
+  }
+
   if (user) {
     res.json(user)
   } else {

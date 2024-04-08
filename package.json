@@ -16,6 +16,7 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.4",
-    "sequelize": "^6.37.2"
+    "sequelize": "^6.37.2",
+    "umzug": "^3.8.0"
   }
 }

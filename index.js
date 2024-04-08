@@ -11,6 +11,7 @@ const { errorHandler } = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const authorRouter = require('./controllers/authors')
+const readingRouter = require('./controllers/readinglists')
 
 app.use(express.json())
 
@@ -18,6 +19,7 @@ app.use('/', blogsRouter)
 app.use('/', usersRouter)
 app.use('/', loginRouter)
 app.use('/', authorRouter)
+app.use('/', readingRouter)
 app.use(errorHandler)
 
 const start = async () => {
